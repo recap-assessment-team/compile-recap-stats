@@ -1,0 +1,13 @@
+
+Now we have to process (lightly) the transaction data from LAS.
+
+
+At time of writing, there are three files in ReCAP-Assessment/LAS-reports
+
+They have overlapping time periods (I think), so let's cope with that
+
+
+
+
+
+

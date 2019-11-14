@@ -1,0 +1,28 @@
+
+
+The first step is to parse the MARC XML from HTC dump and
+put it into rectangular form for joining, easy filterings, etc..
+
+For this, you can either tell me to run it for you (with or without
+modification) or install SBCL, GNU coreutils,  all necessary packages,
+clix (https://github.com/tonyfischetti/clix), etc...
+
+Sorry, but I had to make this "fun" somehow
+
+
+Unpack the HTC XML files into a directory and point
+`parse-all-marcxmls.lisp` to that directory
+
+For example, this is what I do...
+
+````
+./parse-all-marcxmls.lisp ~/data/htc/NYPL > ~/data/parsed-htc/NYPL-RECAP.dat
+```
+
+(and for the other partners)
+
+Even though standard input is redirected, there are some helpful
+diagnostic messages from STDERR.
+
+
+
