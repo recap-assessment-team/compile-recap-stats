@@ -20,18 +20,18 @@ source("~/.R/tony-utils.R")
 
 
 # 4,838,430    2,453,742
-nypl <- fread("~/data/parsed-htc/NYPL-RECAP-2.dat", colClasses="character",
+nypl <- fread("~/data/parsed-htc/NYPL-RECAP.dat", colClasses="character",
               quote="", na.strings=c("", "NA", "NIL"))
 
 
 # 4,622,980   3,296,623
-cul <- fread("~/data/parsed-htc/CUL-RECAP-2.dat", colClasses="character",
+cul <- fread("~/data/parsed-htc/CUL-RECAP.dat", colClasses="character",
              quote="", na.strings=c("", "NA", "NIL"),
              fill=TRUE)
 
 
 # 3,367,792    2,200,337
-pul <- fread("~/data/parsed-htc/PUL-RECAP-2.dat", colClasses="character",
+pul <- fread("~/data/parsed-htc/PUL-RECAP.dat", colClasses="character",
              quote="", na.strings=c("", "NA", "NIL"))
 
 
