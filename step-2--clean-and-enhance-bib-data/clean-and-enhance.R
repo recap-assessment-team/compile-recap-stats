@@ -37,19 +37,16 @@ pul <- fread("~/data/compile-recap-stats-data/parsed-htc/PUL-RECAP.dat",
 
 
 
+OLDORDER <- names(nypl)
+
+
+
 ##################
 ##     LCCN     ##
 ##################
 nypl[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2019)]
 cul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2019)]
 pul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2019)]
-
-
-
-
-
-
-OLDORDER <- names(nypl)
 
 
 
