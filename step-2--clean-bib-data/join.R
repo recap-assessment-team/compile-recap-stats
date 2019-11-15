@@ -18,26 +18,99 @@ library(stringr)
 source("~/.R/tony-utils.R")
 # ------------------------------ #
 
+source("bibcodes.R")
+
 
 # 4,838,430    2,453,742
-nypl <- fread("~/data/parsed-htc/NYPL-RECAP.dat", colClasses="character",
-              quote="", na.strings=c("", "NA", "NIL"))
+nypl <- fread("~/data/compile-recap-stats-data/parsed-htc/NYPL-RECAP.dat",
+              colClasses="character", quote="", na.strings=c("", "NA", "NIL"))
 
 
 # 4,622,980   3,296,623
-cul <- fread("~/data/parsed-htc/CUL-RECAP.dat", colClasses="character",
-             quote="", na.strings=c("", "NA", "NIL"),
+cul <- fread("~/data/compile-recap-stats-data/parsed-htc/CUL-RECAP.dat",
+             colClasses="character", quote="", na.strings=c("", "NA", "NIL"),
              fill=TRUE)
 
-
 # 3,367,792    2,200,337
-pul <- fread("~/data/parsed-htc/PUL-RECAP.dat", colClasses="character",
-             quote="", na.strings=c("", "NA", "NIL"))
+pul <- fread("~/data/compile-recap-stats-data/parsed-htc/PUL-RECAP.dat",
+             colClasses="character", quote="", na.strings=c("", "NA", "NIL"))
+
+
+
+##################
+##     LCCN     ##
+##################
+nypl[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2019)]
+cul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2019)]
+pul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2019)]
 
 
 
 
-cul[!is.na(vol), .(vol, barcode, scsbid)]
+
+
+OLDORDER <- names(nypl)
+
+
+
+
+
+##################
+##     ISBN     ##
+##################
+nypl[, tmp:=sprintf("nypl-%s-%s", barcode, scsbid)]
+# only one
+nypl <- nypl[!duplicated(tmp)]
+
+cul[, tmp:=sprintf("cul-%s-%s", barcode, scsbid)]
+# only five
+# cul[,.N]
+# uniqueN(cul[, .(tmp)])
+cul <- cul[!duplicated(tmp)]
+
+pul[, tmp:=sprintf("pul-%s-%s", barcode, scsbid)]
+# NONE
+# pul <- pul[!duplicated(tmp)]
+
+nypl[!is.na(isbn), .(tmp, isbn)] -> one
+cul[!is.na(isbn), .(tmp, isbn)] ->  two
+pul[!is.na(isbn), .(tmp, isbn)] ->  three
+
+comb <- rbindlist(list(one, two, three))
+
+library(tidyr)
+comb %>% separate_rows(isbn, sep=";") -> comb
+
+options(warn=1)
+comb[, fixedisbn:=normalize_isbn(isbn, convert.to.isbn.13=TRUE)]
+
+comb
+
+uniqueN(comb[, .(isbn)])
+uniqueN(comb[, .(fixedisbn)])
+
+comb[, .(isbn=paste(unique(fixedisbn), collapse=";")), tmp] -> betterisbns
+
+
+
+##################
+##     ISBN     ##
+##################
+nypl[!is.na(issn), .(tmp, issn)] -> one
+cul[!is.na(issn), .(tmp, issn)] ->  two
+pul[!is.na(issn), .(tmp, issn)] ->  three
+
+comb <- rbindlist(list(one, two, three))
+
+library(tidyr)
+comb %>% separate_rows(isbn, sep=";") -> comb
+
+options(warn=1)
+comb[, fixedisbn:=normalize_isbn(isbn, convert.to.isbn.13=TRUE)]
+
+
+
+# I MESSED THIS ONE UP!!
 
 
 
@@ -46,9 +119,27 @@ cul[!is.na(vol), .(vol, barcode, scsbid)]
 
 
 
+nypl[!is.na(isbn), .(barcode, numitems, isbn)]
 
 
 
+nypl[,.N]
+nypl[duplicated(barcode)]
+nypl[barcode=="33433105673549", .(barcode, scsbid, numitems, title, oh09, localcallnum)]
+
+cul[duplicated(barcode)]
+
+
+cul[barcode=="CU61390550", .(barcode, scsbid, numitems, title, oh09, localcallnum)]
+
+
+
+
+
+
+
+
+### number of scsbids under barcode
 
 
 

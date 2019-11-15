@@ -58,7 +58,7 @@
 (defmarcxmlfield issn
   "datafield[@tag='022']/subfield[@code='a']"
   (-<> it!
-       (mapcar (lambda (x) (~ra x •^(\d+[Xx]?).*$• •\1•)) <>)
+       (mapcar (lambda (x) (~ra x •^(\d+-?\d+[Xx]?).*$• •\1•)) <>)
        (remove-duplicates <> :test #'equalp)
        (delim <> :sep #\;))
   :text t :all t)
@@ -85,7 +85,7 @@
   :text t :all t)
 
 (defmarcxmlfield topicalterms
-  "datafield[@tag='650']/subfield[@code='a']"
+  "datafield[@tag='650' and @ind2='0']/subfield[@code='a']"
   (delim (remove-duplicates it! :test #'equal) :sep #\;)
   :all t :text t)
 
@@ -158,12 +158,13 @@
     (info "parsing took ~A~%" (time-for-humans time!)))
   (with-time
     (for-each/list (xpath /doc/ "/collection/record")
-      ; (when (> index! 30) (die "limit reached"))
+      (when (> index! 30) (die "limit reached"))
       (let ((item-info (get-item-info value!)))
         (with-get-all value!
-          (scsbid sharedp language pubdate biblevel recordtype oclc lccn
-           isbn issn lccall localcallnum oh09 pubplace pubsubplace leader
-           oh08 dateoflastxaction title author topicalterms)
+          (scsbid sharedp language topicalterms)
+           ;        pubdate biblevel recordtype oclc lccn
+           ; isbn issn lccall localcallnum oh09 pubplace pubsubplace leader
+           ; oh08 dateoflastxaction title author topicalterms)
           (for-each/list item-info
             (ft "~A~C~A~C~A~C" (car value!) #\Tab (cadr value!) #\Tab
                                (length item-info) #\Tab)
