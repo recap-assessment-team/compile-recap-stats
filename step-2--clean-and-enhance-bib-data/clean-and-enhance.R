@@ -181,7 +181,8 @@ betterrecap %>% names
 
 
 
-
+betterrecap %>% fwrite("./target/RECAP.dat",
+                       sep="\t", na="NA")
 
 
 

@@ -37,18 +37,21 @@ get_place <- function(x){
 
 
 
-fy19 <- fread("./LAS-FY19.csv", colClasses="character", header=TRUE,
-                  col.names=c("order_owner", "item_barcode", "item_owner",
-                              "req_date", "ship_date", "requestor",
-                              "stopp", "status", "order_type"))
-fy20p <- fread("./LAS-FY20-part.csv", colClasses="character", header=TRUE,
-                  col.names=c("order_owner", "item_barcode", "item_owner",
-                              "req_date", "ship_date", "requestor",
-                              "stopp", "status", "order_type"))
-fy18p <- fread("./LAS-BCE.csv", colClasses="character", header=TRUE,
-                  col.names=c("order_owner", "item_barcode", "item_owner",
-                              "req_date", "ship_date", "requestor",
-                              "stopp", "status", "order_type"))
+fy19 <- fread("~/data/compile-recap-stats-data/las/LAS-FY19.csv",
+              colClasses="character", header=TRUE,
+              col.names=c("order_owner", "item_barcode", "item_owner",
+                          "req_date", "ship_date", "requestor",
+                          "stopp", "status", "order_type"))
+fy20p <- fread("~/data/compile-recap-stats-data/las/LAS-FY20-part.csv",
+               colClasses="character", header=TRUE,
+               col.names=c("order_owner", "item_barcode", "item_owner",
+                           "req_date", "ship_date", "requestor",
+                           "stopp", "status", "order_type"))
+fy18p <- fread("~/data/compile-recap-stats-data/las/LAS-BCE.csv",
+               colClasses="character", header=TRUE,
+               col.names=c("order_owner", "item_barcode", "item_owner",
+                           "req_date", "ship_date", "requestor",
+                           "stopp", "status", "order_type"))
 
 
 fy18p
@@ -67,6 +70,7 @@ xactions[, req_date:=mdy(req_date)]
 xactions[, made_order:=get_place(stopp)]
 xactions[, item_owner:=get_place(item_owner)]
 
+
 setcolorder(xactions, c("item_owner", "made_order", "item_barcode", "req_date", "ship_date", "order_type"))
 xactions
 
@@ -80,9 +84,13 @@ setnames(xactions, "item_barcode", "barcode")
 setorder(xactions, "req_date", "barcode")
 
 # no duplicates
+xactions[,.N]
 xactions <- unique(xactions)
+xactions[,.N]
 
+# 2017-06-20 <-> 2019-09-20
+# 550,350
 
-xactions %>% fwrite("xactions-better.dat", sep="\t")
+xactions %>% fwrite("./target/transactions.dat", sep="\t", na="NA")
 
 
