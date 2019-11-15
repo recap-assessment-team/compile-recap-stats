@@ -14,6 +14,8 @@ library(colorout)
 library(data.table)
 library(magrittr)
 library(stringr)
+library(tidyr)
+
 
 source("~/.R/tony-utils.R")
 # ------------------------------ #
@@ -90,8 +92,9 @@ comb[, .(isbn=paste(unique(fixedisbn), collapse=";")), tmp] -> betterisbns
 
 
 
+
 ##################
-##     ISBN     ##
+##     ISSN     ##
 ##################
 nypl[!is.na(issn), .(tmp, issn)] -> one
 cul[!is.na(issn), .(tmp, issn)] ->  two
@@ -99,59 +102,21 @@ pul[!is.na(issn), .(tmp, issn)] ->  three
 
 comb <- rbindlist(list(one, two, three))
 
-library(tidyr)
-comb %>% separate_rows(isbn, sep=";") -> comb
+comb %>% separate_rows(issn, sep=";") -> comb
 
-options(warn=1)
-comb[, fixedisbn:=normalize_isbn(isbn, convert.to.isbn.13=TRUE)]
+comb[, fixedissn:=normalize_issn(issn, pretty=TRUE)]
 
+# uniqueN(comb[, .(isbn)])
+# uniqueN(comb[, .(fixedisbn)])
+#
+# comb[1:10][, .(isbn=paste(unique(isbn), collapse=";")), tmp]
+# comb[1:10][, .(isbn=paste(unique(fixedisbn), collapse=";")), tmp]
+# comb[1:10][, .(isbn=paste(unique(fixedisbn), collapse=";")), tmp]
 
-
-# I MESSED THIS ONE UP!!
-
-
-
-
-
+comb[, .(issn=paste(unique(fixedissn), collapse=";")), tmp] -> betterissns
 
 
-
-nypl[!is.na(isbn), .(barcode, numitems, isbn)]
-
-
-
-nypl[,.N]
-nypl[duplicated(barcode)]
-nypl[barcode=="33433105673549", .(barcode, scsbid, numitems, title, oh09, localcallnum)]
-
-cul[duplicated(barcode)]
-
-
-cul[barcode=="CU61390550", .(barcode, scsbid, numitems, title, oh09, localcallnum)]
-
-
-
-
-
-
-
-
-### number of scsbids under barcode
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# --------------------------------------------------------------- #
 
 
 nypl[, inst_has_item:="NYPL"]
@@ -162,49 +127,63 @@ setcolorder(nypl, c("inst_has_item"))
 setcolorder(cul, c("inst_has_item"))
 setcolorder(pul, c("inst_has_item"))
 
-nypl
-
-las <- fread("../step-2--fix-borrow-data/xactions-better.dat")
-las[, barcode:=toupper(barcode)]
-
-las <- las[item_owner %chin% c("CUL", "NYPL", "PUL")]
-
-setkey(las, "barcode")
-
-
-
 recap <-rbindlist(list(nypl, cul, pul))
 
-recap[,.N]
-# 12,829,202
-
-recap[, barcode:=toupper(barcode)]
-setkey(recap, "barcode")
+# 12.8 million
 
 
-recap[las] -> comb
-recap[las, mult="first", nomatch=0L] -> comb
-recap[las, mult="first"] -> comb
+# LC CALLS
 
-las[,.N]
-comb[,.N]
-
-
-comb[, .N, !is.na(inst_has_item)]
-#     is.na      N
-#    <lgcl>  <int>
-# 1:   TRUE 123524
-# 2:  FALSE  69274
+recap %>% names
+recap[, lccallp:=lccall]
+recap[inst_has_item!="NYPL" &
+      !is.na(localcallnum) &
+      is.na(lccall) &
+      str_detect(localcallnum,
+                 "^[A-Z][A-Z]?\\d+")
+    , lccallp:=localcallnum]
 
 
-comb[is.na(inst_has_item)]
-comb[is.na(inst_has_item), .N]
-
-comb %>% fwrite("results/las-xactions-and-info-joined.dat", sep="\t")
 
 
-comb[order(req_date)]
+recap[1:3,]
 
-# 2017-06-20
-# 2019-09-20
+
+
+## join fixed controls
+setnames(recap, "isbn", "original_isbn")
+setnames(recap, "issn", "original_issn")
+
+recap
+
+setkey(recap, "tmp")
+setkey(betterisbns, "tmp")
+setkey(betterissns, "tmp")
+
+recap[, .N]
+betterisbns[recap] -> betterrecap
+
+betterissns[betterrecap] -> betterrecap
+
+
+betterrecap[1:3]
+
+OLDORDER <- c("inst_has_item", OLDORDER)
+
+setcolorder(betterrecap, OLDORDER)
+
+betterrecap[, original_lccall:=lccall]
+betterrecap[, lccall:=lccallp]
+
+betterrecap[, lccallp:=NULL]
+
+betterrecap %>% names
+
+
+
+
+
+
+
+
 
