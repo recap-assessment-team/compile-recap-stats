@@ -158,7 +158,7 @@
     (info "parsing took ~A~%" (time-for-humans time!)))
   (with-time
     (for-each/list (xpath /doc/ "/collection/record")
-      (when (> index! 30) (die "limit reached"))
+      ; (when (> index! 30) (die "limit reached"))
       (let ((item-info (get-item-info value!)))
         (with-get-all value!
           (scsbid sharedp language topicalterms)
