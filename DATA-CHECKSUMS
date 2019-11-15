@@ -272,4 +272,9 @@ $HOME/data/compile-recap-stats-data/htc/PUL/90.xml	77475fa756d689d0680da8888eab7
 $HOME/data/compile-recap-stats-data/htc/PUL/219.xml	ee3b053c79496f032e27bdebf0fdd278
 $HOME/data/compile-recap-stats-data/htc/PUL/153.xml	9e5fc4a06451141f6f8ac9d0c84f6ab8
 $HOME/data/compile-recap-stats-data/htc/PUL/147.xml	812f1777083071bf39e72b6ffa7ff9f6
-$HOME/data/compile-recap-stats-data/old-parsed-htc/NYPL-RECAP-2.dat	6b7f50214b797b6454ac5cd413e2683c
+$HOME/data/compile-recap-stats-data/parsed-htc/NYPL-RECAP.dat	4ae7011fa898bd52be4585b3868cf559
+$HOME/data/compile-recap-stats-data/parsed-htc/CUL-RECAP.dat	7dbd87373625ce161f12476946fa06c6
+$HOME/data/compile-recap-stats-data/parsed-htc/PUL-RECAP.dat	3a5107f7126dba43b13b5ae9cd248755
+$HOME/data/compile-recap-stats-data/las/LAS-FY19.csv	e52cfcd42ab2e1341fe2fffd84e0f135
+$HOME/data/compile-recap-stats-data/las/LAS-FY20-part.csv	993570f236a822e8b2e882819583dd86
+$HOME/data/compile-recap-stats-data/las/LAS-BCE.csv	a8802c656064c7127f05866ca51c2fd4
