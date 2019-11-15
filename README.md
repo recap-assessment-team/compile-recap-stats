@@ -3,11 +3,60 @@
 
 ### why?
 
-Of course
+Ease of collaboration, of course
+
+### say more
+
+So, of course, MARC/SCSB XML is the most sensible lossless format
+for the bibliographic metadata for the materials in ReCAP, but it
+is _harrowing_ to work with, especially if unfamiliar with SAX,
+XPath, regular expressions, etc...
+Additionally, it's hierarchical nature is at odds with the "flat
+spreadsheet" thing that most of us are used to.
+Instead of all of us processing it in idiosyncratic ways, let's all
+use one projection of these SCSB XML data to flat file. We can all
+collectively decide on the fields to include and how to include them.
+
+It's also nice to have a nice version-controlled place to put this
+code. In addition, we can (and will) set up a devops toolchain
+to make this whole thing reproducible
+
+### what, though?
+
+So this is a multistep procedure that yields three spreadsheets
+(tab-delimited, "NA" is null, etc...) meant for direct consumption:
+  - `RECAP.dat`\
+    The projection of all the SCSB XML data. As of time of writing,
+    this includes 12.8 million items.
+  - `transactions.dat`\
+    Takes all the transaction data exported from LAS and, because there
+    are overlaps in the time, removes the duplicates.
+    At time of writing, this is 550,350 transactions from
+    2017-06-20 to 2019-09-20.
+  - `las-transaction-bib-info.dat`\
+    In order to answer questions about what kind of materials we're
+    borrowing from each other, the bib metadata table has to be
+    joined with the transaction table. This is that.
+    A few caveats... 20% of the barcodes in the transaction data do
+    not have matches in the ReCAP XML data. _Why_ is a mystery.
+    These records are still included, but there is no associated
+    bib metadata, just the request date, owning and requesting
+    institution, etc...
+    Harvard, ILL, etc... transactions are ALSO included here. The
+    HUL don't have any bib metadata, though, as they are not in the
+    SCSB XML data export
+
+For space and privacy the input and output files are "git-ignored" and
+not in this repository. The (output) files are available on our
+"ReCAP Assessment" shared drive.
+
+The locations and MD5 checksums of the input files are described in
+the `DATA-CHECKSUMS` file. The scripts are coded to read the input
+files there.
 
 ---
 
-### fields
+### fields of `RECAP.dat`
 
   - __inst_has_item__\
     this is just the institution that owns the item
@@ -101,19 +150,27 @@ Of course
     0-8 of the 005 control field. I'm suspicious.
 
   - __title__\
+    245\$a
 
   - __author__\
+    100\$a
 
   - __topicalterms__\
+    All the Library of Congress subject headers (650\$a for ind2 of 0)
+    separated by a semicolon
 
   - __tmp__\
+    I used this internally and forgot to remove it. Whoops.
 
   - __original_isbn__\
+    The isbn before normalizations (posterity)
 
   - __original_issn__\
+    The issn before normalizations (posterity)
 
   - __original_lccall__\
-
+    The lc call before frantic attempts to recover from
+    other fields (posterity)
 
 
 ---
