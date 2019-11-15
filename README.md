@@ -12,10 +12,12 @@ Of course
 
 
 ### fields
-  - barcode
+  - barcode\
     this
-  - vol
+
+  - vol\
     that
+
   - numitems
   - scsbid
   - sharedp
