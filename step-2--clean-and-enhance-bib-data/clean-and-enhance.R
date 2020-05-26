@@ -17,24 +17,29 @@ library(stringr)
 library(tidyr)
 
 
-source("~/.R/tony-utils.R")
+source("~/.rix/tony-utils.R")
 # ------------------------------ #
 
 source("bibcodes.R")
 
+# PARSED_HTC_LOC <- "~/data/compile-recap-stats-data/parsed-htc/"
+PARSED_HTC_LOC <- "~/Desktop/parsed-htc/"
 
-# 4,838,430    2,453,742
-nypl <- fread("~/data/compile-recap-stats-data/parsed-htc/NYPL-RECAP.dat",
+# OLD:                  4,838,430    2,453,742
+# 2020-05-26:           4,848,922
+nypl <- fread(sprintf("%s/NYPL-RECAP.dat", PARSED_HTC_LOC),
               colClasses="character", quote="", na.strings=c("", "NA", "NIL"))
 
 
-# 4,622,980   3,296,623
-cul <- fread("~/data/compile-recap-stats-data/parsed-htc/CUL-RECAP.dat",
+# OLD:                  4,622,980   3,296,623
+# 2020-05-26:           4,681,369
+cul <- fread(sprintf("%s/CUL-RECAP.dat", PARSED_HTC_LOC),
              colClasses="character", quote="", na.strings=c("", "NA", "NIL"),
              fill=TRUE)
 
-# 3,367,792    2,200,337
-pul <- fread("~/data/compile-recap-stats-data/parsed-htc/PUL-RECAP.dat",
+# OLD:                  3,367,792    2,200,337
+# 2020-05-26:           3,191,778
+pul <- fread(sprintf("%s/PUL-RECAP.dat", PARSED_HTC_LOC),
              colClasses="character", quote="", na.strings=c("", "NA", "NIL"))
 
 
@@ -46,9 +51,9 @@ OLDORDER <- names(nypl)
 ##################
 ##     LCCN     ##
 ##################
-nypl[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2019)]
-cul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2019)]
-pul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2019)]
+nypl[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2020)]
+cul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2020)]
+pul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2020)]
 
 
 
@@ -58,17 +63,21 @@ pul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2019)]
 ##     ISBN     ##
 ##################
 nypl[, tmp:=sprintf("nypl-%s-%s", barcode, scsbid)]
-# only one
+nypl[duplicated(tmp), .N]
+# OLD:          only one
+# 2020-05-26:   only one
 nypl <- nypl[!duplicated(tmp)]
 
 cul[, tmp:=sprintf("cul-%s-%s", barcode, scsbid)]
-# only five
-# cul[,.N]
-# uniqueN(cul[, .(tmp)])
+# OLD:          only five
+# 2020-05-26:   only five
+cul[duplicated(tmp), .N]
 cul <- cul[!duplicated(tmp)]
 
 pul[, tmp:=sprintf("pul-%s-%s", barcode, scsbid)]
-# NONE
+# OLD:          none
+# 2020-05-26:   none
+pul[duplicated(tmp), .N]
 # pul <- pul[!duplicated(tmp)]
 
 nypl[!is.na(isbn), .(tmp, isbn)] -> one
@@ -79,6 +88,7 @@ comb <- rbindlist(list(one, two, three))
 
 library(tidyr)
 comb %>% separate_rows(isbn, sep=";") -> comb
+comb <- as.data.table(comb)
 
 options(warn=1)
 comb[, fixedisbn:=normalize_isbn(isbn, convert.to.isbn.13=TRUE)]
@@ -102,16 +112,10 @@ pul[!is.na(issn), .(tmp, issn)] ->  three
 
 comb <- rbindlist(list(one, two, three))
 
-comb %>% separate_rows(issn, sep=";") -> comb
+comb %>% separate_rows(issn, sep=";") %>% as.data.table -> comb
 
 comb[, fixedissn:=normalize_issn(issn, pretty=TRUE)]
 
-# uniqueN(comb[, .(isbn)])
-# uniqueN(comb[, .(fixedisbn)])
-#
-# comb[1:10][, .(isbn=paste(unique(isbn), collapse=";")), tmp]
-# comb[1:10][, .(isbn=paste(unique(fixedisbn), collapse=";")), tmp]
-# comb[1:10][, .(isbn=paste(unique(fixedisbn), collapse=";")), tmp]
 
 comb[, .(issn=paste(unique(fixedissn), collapse=";")), tmp] -> betterissns
 
@@ -129,7 +133,7 @@ setcolorder(pul, c("inst_has_item"))
 
 recap <-rbindlist(list(nypl, cul, pul))
 
-# 12.8 million
+# ~ 12.8 million
 
 
 # LC CALLS
