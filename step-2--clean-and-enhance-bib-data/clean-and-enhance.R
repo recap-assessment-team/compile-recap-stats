@@ -16,32 +16,40 @@ library(magrittr)
 library(stringr)
 library(tidyr)
 
+library(libbib)   # version 0.5 (commit: 9f1598b7d1adf) [in dependencies folder]
 
-source("~/.rix/tony-utils.R")
+source("../dependencies/utils.R")
 # ------------------------------ #
 
-source("bibcodes.R")
 
-# PARSED_HTC_LOC <- "~/data/compile-recap-stats-data/parsed-htc/"
-PARSED_HTC_LOC <- "~/Desktop/parsed-htc/"
 
-# OLD:                  4,838,430    2,453,742
-# 2020-05-26:           4,848,922
+PARSED_HTC_LOC <- "~/data/scsb-recap-exports/2021-03/parsed/"
+
 nypl <- fread(sprintf("%s/NYPL-RECAP.dat", PARSED_HTC_LOC),
               colClasses="character", quote="", na.strings=c("", "NA", "NIL"))
+# 2021-03:              6,263,710
+nypl <- nypl[sharedp %chin% c("Shared", "Open"), ]
+# OLD:                  4,838,430
+# 2020-05-26:           4,848,922
+# 2021-03:              4,938,534
 
 
-# OLD:                  4,622,980   3,296,623
-# 2020-05-26:           4,681,369
 cul <- fread(sprintf("%s/CUL-RECAP.dat", PARSED_HTC_LOC),
-             colClasses="character", quote="", na.strings=c("", "NA", "NIL"),
-             fill=TRUE)
+             colClasses="character", quote="", na.strings=c("", "NA", "NIL"))
+# 2021-03:              5,322,058
+cul <- cul[sharedp %chin% c("Shared", "Open"), ]
+# OLD:                  4,622,980
+# 2020-05-26:           4,681,369
+# 2021-03:              4,722,143
 
-# OLD:                  3,367,792    2,200,337
-# 2020-05-26:           3,191,778
+
 pul <- fread(sprintf("%s/PUL-RECAP.dat", PARSED_HTC_LOC),
              colClasses="character", quote="", na.strings=c("", "NA", "NIL"))
-
+# 2021-03:              3,971,988
+pul <- pul[sharedp %chin% c("Shared", "Open"), ]
+# OLD:                  3,367,792
+# 2020-05-26:           3,191,778   (?)
+# 2021-03:              3,532,434
 
 
 OLDORDER <- names(nypl)
@@ -51,9 +59,12 @@ OLDORDER <- names(nypl)
 ##################
 ##     LCCN     ##
 ##################
-nypl[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2020)]
-cul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2020)]
-pul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2020)]
+tmp <- nypl[!is.na(lccn), .(scsbid, title, isbn, lccn)]
+tmp[,flccn:=normalize_lccn(lccn, year.cutoff=2021)]
+
+nypl[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2021)]
+cul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2021)]
+pul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2021)]
 
 
 
@@ -64,19 +75,13 @@ pul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2020)]
 ##################
 nypl[, tmp:=sprintf("nypl-%s-%s", barcode, scsbid)]
 nypl[duplicated(tmp), .N]
-# OLD:          only one
-# 2020-05-26:   only one
-nypl <- nypl[!duplicated(tmp)]
+# nypl <- nypl[!duplicated(tmp)]
 
 cul[, tmp:=sprintf("cul-%s-%s", barcode, scsbid)]
-# OLD:          only five
-# 2020-05-26:   only five
 cul[duplicated(tmp), .N]
-cul <- cul[!duplicated(tmp)]
+# cul <- cul[!duplicated(tmp)]
 
 pul[, tmp:=sprintf("pul-%s-%s", barcode, scsbid)]
-# OLD:          none
-# 2020-05-26:   none
 pul[duplicated(tmp), .N]
 # pul <- pul[!duplicated(tmp)]
 
@@ -114,7 +119,7 @@ comb <- rbindlist(list(one, two, three))
 
 comb %>% separate_rows(issn, sep=";") %>% as.data.table -> comb
 
-comb[, fixedissn:=normalize_issn(issn, pretty=TRUE)]
+comb[, fixedissn:=normalize_issn(issn)]
 
 
 comb[, .(issn=paste(unique(fixedissn), collapse=";")), tmp] -> betterissns
@@ -133,7 +138,8 @@ setcolorder(pul, c("inst_has_item"))
 
 recap <-rbindlist(list(nypl, cul, pul))
 
-# ~ 12.8 million
+# old:~     12.8 million
+# 2021-03:  13.2 million
 
 
 # LC CALLS

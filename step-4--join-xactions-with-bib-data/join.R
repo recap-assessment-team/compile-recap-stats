@@ -15,7 +15,8 @@ library(data.table)
 library(magrittr)
 library(stringr)
 
-source("~/.R/tony-utils.R")
+source("../dependencies/utils.R")
+
 # ------------------------------ #
 
 
