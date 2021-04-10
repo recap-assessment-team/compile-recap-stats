@@ -14,7 +14,7 @@ XPath, regular expressions, etc...
 Additionally, it's hierarchical nature is at odds with the "flat
 spreadsheet" thing that most of us are used to.
 Instead of all of us processing it in idiosyncratic ways, let's all
-use one projection of these SCSB XML data to flat file. We can all
+use one projection of these Marc XML data to flat file. We can all
 collectively decide on the fields to include and how to include them.
 
 It's also nice to have a nice version-controlled place to put this
@@ -26,7 +26,7 @@ to make this whole thing reproducible
 So this is a multistep procedure that yields three spreadsheets
 (tab-delimited, "NA" is null, etc...) meant for direct consumption:
   - `RECAP.dat`\
-    The projection of all the SCSB XML data. As of time of writing,
+    The projection of all the Marc XML data. As of time of writing,
     this includes 12.8 million items.
   - `transactions.dat`\
     Takes all the transaction data exported from LAS and, because there
@@ -44,15 +44,11 @@ So this is a multistep procedure that yields three spreadsheets
     institution, etc...
     Harvard, ILL, etc... transactions are ALSO included here. The
     HUL don't have any bib metadata, though, as they are not in the
-    SCSB XML data export
+    Marc XML data exports from SCSB, at time of writing
 
 For space and privacy the input and output files are "git-ignored" and
 not in this repository. The (output) files are available on our
 "ReCAP Assessment" shared drive.
-
-The locations and MD5 checksums of the input files are described in
-the `DATA-CHECKSUMS` file. The scripts are coded to read the input
-files there.
 
 ---
 
@@ -80,7 +76,7 @@ files there.
 
   - __language__\
     This is from characters 35 to 38 from the 008 (I think this is
-    the most reliable
+    the most reliable)
 
   - __pubdate__\
     Characters 7 to 11 of the 008 field
