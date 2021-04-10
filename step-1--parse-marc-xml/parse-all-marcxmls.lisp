@@ -1,5 +1,7 @@
 #!/usr/local/bin/lispscript
 
+; latest clix commit: 7c27c6d98e55
+
 (use-xml-namespace  "http://www.loc.gov/MARC21/slim")
 
 (load "xwalks.lisp")
@@ -32,9 +34,11 @@
 (defmarcxmlfield author     		    "datafield[@tag='100']/subfield[@code='a']" it!)
 (defmarcxmlfield lccall1    		    "datafield[@tag='050']/subfield[@code='a']" it!)
 (defmarcxmlfield lccall2    		    "datafield[@tag='090']/subfield[@code='a']" it!)
-(defmarcxmlfield localcallnum       "datafield[@tag='852']/subfield[@code='h']" it!)
 (defmarcxmlfield sharedp            "datafield[@tag='876']/subfield[@code='x']" it!)
 
+(defmarcxmlfield localcallnum
+  "datafield[@tag='852']/subfield[@code='h']"
+  (~ra (str-trim it!) •\n• " "))
 
 (defmarcxmlfield dateoflastxaction
   "controlfield[@tag='005']"
@@ -133,6 +137,7 @@
 (defun get-item-info (node)
   (let ((barcodes (xpath node "datafield[@tag='876']/subfield[@code='p']" :all t :text t))
         (vol      (xpath node "datafield[@tag='876']/subfield[@code='3']" :all t :text t)))
+    (setq vol (mapcar (lambda (x) (~ra (str-trim x) •\t• " " )) vol))
     (if (not (= (length barcodes) (length vol)))
       (loop for i in barcodes collect (list i NIL))
       (loop for i in barcodes
@@ -154,7 +159,7 @@
   (progress index! /intotal/)
   (info "parsing file ~A~%" value!)
   (with-time
-    (setq /doc/ (xml-parse-file value!))
+    (setq /doc/ (parse-xml-file value!))
     (info "parsing took ~A~%" (time-for-humans time!)))
   (with-time
     (for-each/list (xpath /doc/ "/collection/record")
