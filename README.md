@@ -48,7 +48,8 @@ So this is a multistep procedure that yields three spreadsheets
 
 For space and privacy the input and output files are "git-ignored" and
 not in this repository. The (output) files are available on our
-"ReCAP Assessment" shared drive.
+"ReCAP Assessment" shared drive under the directory "compiled-recap-stats"
+Let the maintainer know if you need access or help with the files
 
 ---
 
