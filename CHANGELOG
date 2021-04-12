@@ -1,0 +1,15 @@
+
+2021-03
+- adds LC Subject Classification and subclassification directly in data target
+- uses libbib (on CRAN) instead of bibcodes.R
+- fixed issue with export of LCCNs
+- fixed issue with tabs and newlines in CUL MARCXml
+- uses LAS transactions up to 2021-04-09
+- remove garbage "tmp" variable
+- various code/other/output improvements
+- updated LICENSE and README
+
+New items since last update (2020-05)
+NYPL: 89,612
+CUL:  40,774
+PUL: 164,642  (issue in 2020-05 regarding open/shared items)

@@ -15,8 +15,7 @@ library(data.table)
 library(magrittr)
 library(stringr)
 library(tidyr)
-
-library(libbib)   # version 0.5 (commit: 9f1598b7d1adf) [in dependencies folder]
+library(libbib)   # version 1.0 (on CRAN)
 
 source("../dependencies/utils.R")
 # ------------------------------ #
@@ -59,12 +58,9 @@ OLDORDER <- names(nypl)
 ##################
 ##     LCCN     ##
 ##################
-tmp <- nypl[!is.na(lccn), .(scsbid, title, isbn, lccn)]
-tmp[,flccn:=normalize_lccn(lccn, year.cutoff=2021)]
-
-nypl[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2021)]
-cul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2021)]
-pul[!is.na(lccn), lccn:=normalize_lccn(lccn, year.cutoff=2021)]
+nypl[!is.na(lccn), lccn:=normalize_lccn(lccn)]
+cul[!is.na(lccn), lccn:=normalize_lccn(lccn)]
+pul[!is.na(lccn), lccn:=normalize_lccn(lccn)]
 
 
 
@@ -180,7 +176,6 @@ betterrecap[1:3]
 
 OLDORDER <- c("inst_has_item", OLDORDER)
 
-setcolorder(betterrecap, OLDORDER)
 
 betterrecap[, original_lccall:=lccall]
 betterrecap[, lccall:=lccallp]
@@ -189,7 +184,16 @@ betterrecap[, lccallp:=NULL]
 
 betterrecap %>% names
 
+betterrecap[, tmp:=NULL]
 
+neworder <- c("inst_has_item", "barcode", "vol", "numitems", "scsbid",
+              "sharedp", "language", "pubdate", "biblevel", "recordtype",
+              "oclc", "lccn", "isbn", "original_isbn", "issn",
+              "original_issn", "lccall", "original_lccall", "localcallnum",
+              "oh09", "pubplace", "pubsubplace", "leader", "oh08",
+              "dateoflastxaction", "title", "author", "topicalterms")
+
+setcolorder(betterrecap, neworder)
 
 betterrecap %>% fwrite("./target/RECAP.dat",
                        sep="\t", na="NA")

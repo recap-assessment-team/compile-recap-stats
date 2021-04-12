@@ -38,28 +38,26 @@ get_place <- function(x){
 
 
 
-fy19 <- fread("~/data/compile-recap-stats-data/las/LAS-FY19.csv",
-              colClasses="character", header=TRUE,
-              col.names=c("order_owner", "item_barcode", "item_owner",
-                          "req_date", "ship_date", "requestor",
-                          "stopp", "status", "order_type"))
-fy20p <- fread("~/data/compile-recap-stats-data/las/LAS-FY20-part.csv",
-               colClasses="character", header=TRUE,
-               col.names=c("order_owner", "item_barcode", "item_owner",
-                           "req_date", "ship_date", "requestor",
-                           "stopp", "status", "order_type"))
-fy18p <- fread("~/data/compile-recap-stats-data/las/LAS-BCE.csv",
+xlas1 <- fread("~/data/las-transactions/LAS-2017-06-20--2018-12-28.csv",
                colClasses="character", header=TRUE,
                col.names=c("order_owner", "item_barcode", "item_owner",
                            "req_date", "ship_date", "requestor",
                            "stopp", "status", "order_type"))
 
+xlas2 <- fread("~/data/las-transactions/LAS-2018-06-25--2019-06-28.csv",
+               colClasses="character", header=TRUE,
+               col.names=c("order_owner", "item_barcode", "item_owner",
+                           "req_date", "ship_date", "requestor",
+                           "stopp", "status", "order_type"))
 
-fy18p
-fy19
-fy20p
+xlas3 <- fread("~/data/las-transactions/LAS-2019-06-25--2021-04-09.csv",
+               colClasses="character", header=TRUE,
+               col.names=c("order_owner", "item_barcode", "item_owner",
+                           "req_date", "ship_date", "requestor",
+                           "stopp", "status", "order_type"))
 
-xactions <- rbindlist(list(fy18p, fy19, fy20p))
+
+xactions <- rbindlist(list(xlas1, xlas2, xlas3))
 
 xactions
 
@@ -86,11 +84,9 @@ setorder(xactions, "req_date", "barcode")
 
 # no duplicates
 xactions[,.N]
+uniqueN(xactions)
 xactions <- unique(xactions)
 xactions[,.N]
-
-# 2017-06-20 <-> 2019-09-20
-# 550,350
 
 xactions %>% fwrite("./target/transactions.dat", sep="\t", na="NA")
 

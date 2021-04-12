@@ -48,11 +48,11 @@ comb[,.N]
 
 
 comb[, .N, !is.na(inst_has_item)]
-#     is.na      N
-#    <lgcl>  <int>
-# 1:   TRUE 426068
-# 2:  FALSE 124282
-
+## 2021-03
+   #  is.na      N
+   # <lgcl>  <int>
+   # 1:   TRUE 578798
+   # 2:  FALSE 177401
 # 77%
 
 

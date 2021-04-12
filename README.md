@@ -101,8 +101,14 @@ not in this repository. The (output) files are available on our
     to ISBN13s, removed (now) duplicated numbers, and put them all in one
     cell separated by a semicolon
 
+  - __original_isbn__\
+    The original ISBN before normalization
+
   - __issn__\
     Same with ISBN but didn't convert to ISBN13 (obv)
+
+  - __original_issn__\
+    The original ISSN before normalization
 
   - __lccall__\
     Probably the most complicated of the bunch...
@@ -120,6 +126,9 @@ not in this repository. The (output) files are available on our
     until we join with, in this example, Columbia's complete ILS data.\
     For posterity, the LC call _without_ the procedure of taking it from
     the local call number is in a separate column called `original_lccall`
+
+  - __original_lccall__\
+    The original LC Call Number before processing
 
   - __localcallnum__\
     852\$h. Often Billings for NYPL and LC for CUL/PUL. Not always, though.
@@ -155,25 +164,11 @@ not in this repository. The (output) files are available on our
     All the Library of Congress subject headers (650\$a for ind2 of 0)
     separated by a semicolon
 
-  - __tmp__\
-    I used this internally and forgot to remove it. Whoops.
+  - __subject_classification__\
+    Uses libbib to get LC subject classification from first letter
+    of LC Call Number
 
-  - __original_isbn__\
-    The isbn before normalizations (posterity)
-
-  - __original_issn__\
-    The issn before normalizations (posterity)
-
-  - __original_lccall__\
-    The lc call before frantic attempts to recover from
-    other fields (posterity)
-
-
----
-
-### todo
-  - Set up reproducible build environment with [Vagrant](https://www.vagrantup.com/)
-
----
-
+  - __subject_subclassification__\
+    Uses libbib to get LC subject _sub_ classification from all prefix
+    letters in LC Call Number
 
