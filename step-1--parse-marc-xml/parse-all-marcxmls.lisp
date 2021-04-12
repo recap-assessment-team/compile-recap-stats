@@ -35,6 +35,7 @@
 (defmarcxmlfield lccall1    		    "datafield[@tag='050']/subfield[@code='a']" it!)
 (defmarcxmlfield lccall2    		    "datafield[@tag='090']/subfield[@code='a']" it!)
 (defmarcxmlfield sharedp            "datafield[@tag='876']/subfield[@code='x']" it!)
+(defmarcxmlfield lccn               "datafield[@tag='010']/subfield[@code='a']" it!)
 
 (defmarcxmlfield localcallnum
   "datafield[@tag='852']/subfield[@code='h']"
@@ -46,10 +47,6 @@
         (mn (subseq it! 4 6))
         (dy (subseq it! 6 8)))
     (delim (list yr mn dy) :sep #\-)))
-
-(defmarcxmlfield lccn
-  "datafield[@tag='010']/subfield[@code='a']"
-  (parse-integer (~ra it! •\D• "")))
 
 (defmarcxmlfield isbn
   "datafield[@tag='020']/subfield[@code='a']"
@@ -163,7 +160,6 @@
     (info "parsing took ~A~%" (time-for-humans time!)))
   (with-time
     (for-each/list (xpath /doc/ "/collection/record")
-      ; (when (> index! 30) (die "limit reached"))
       (let ((item-info (get-item-info value!)))
         (with-get-all value!
           (scsbid sharedp language  pubdate biblevel recordtype oclc lccn
@@ -172,9 +168,8 @@
           (for-each/list item-info
             (ft "~A~C~A~C~A~C" (car value!) #\Tab (cadr value!) #\Tab
                                (length item-info) #\Tab)
-            (ft "~A~%" (delim everything!))
-            ))))
-      (info "finished conversion in ~A~%~%" (time-for-humans time!)))
-    (gc :full t))
+            (ft "~A~%" (delim everything!))))))
+    (info "finished conversion in ~A~%~%" (time-for-humans time!)))
+  (gc :full t))
 
 
