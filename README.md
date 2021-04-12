@@ -27,12 +27,12 @@ So this is a multistep procedure that yields three spreadsheets
 (tab-delimited, "NA" is null, etc...) meant for direct consumption:
   - `RECAP.dat`\
     The projection of all the Marc XML data. As of time of writing,
-    this includes 12.8 million items.
+    this includes 13.2 million items.
   - `transactions.dat`\
     Takes all the transaction data exported from LAS and, because there
     are overlaps in the time, removes the duplicates.
-    At time of writing, this is 550,350 transactions from
-    2017-06-20 to 2019-09-20.
+    At time of writing, this is 756,199 transactions from
+    2017-06-20 to 2021-04-09.
   - `las-transaction-bib-info.dat`\
     In order to answer questions about what kind of materials we're
     borrowing from each other, the bib metadata table has to be

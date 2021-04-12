@@ -32,7 +32,7 @@ setkey(las, "barcode")
 
 
 recap[,.N]
-# 12,829,196
+# 2021-03: 13,193,111
 
 recap[, barcode:=toupper(barcode)]
 setkey(recap, "barcode")
