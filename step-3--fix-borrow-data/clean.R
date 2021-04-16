@@ -15,7 +15,7 @@ library(data.table)
 library(magrittr)
 library(stringr)
 
-library(libbib)     # v1.3.3
+library(libbib)     # v1.3.4
 
 # ------------------------------ #
 

@@ -80,9 +80,12 @@ MarcXML export/import, and may have a revision number.
   - __sharedp__\
     Whether it's "shared" or "open"
 
-  - __language__\
+- __lang_code__\
     This is from characters 35 to 38 from the 008 (I think this is
     the most reliable)
+
+  - __language__\
+    A human-readable translation of the language code
 
   - __pubdate__\
     Characters 7 to 11 of the 008 field
@@ -116,6 +119,10 @@ MarcXML export/import, and may have a revision number.
   - __original_issn__\
     The original ISSN before normalization
 
+  - __original_lccall__\
+    The original contents of the LC call number field.
+    Before any black magic
+
   - __lccall__\
     Probably the most complicated of the bunch...
     So we take 050\$a _and_ 090\$a. We preferentially chose the former
@@ -133,9 +140,6 @@ MarcXML export/import, and may have a revision number.
     For posterity, the LC call _without_ the procedure of taking it from
     the local call number is in a separate column called `original_lccall`
 
-  - __original_lccall__\
-    The original LC Call Number before processing
-
   - __localcallnum__\
     852\$h. Often Billings for NYPL and LC for CUL/PUL. Not always, though.
     See `lccall` directly above
@@ -143,8 +147,11 @@ MarcXML export/import, and may have a revision number.
   - __oh09__\
     The 090. For the NYPL it's our ILS' bibids. Idk what it is for CUL/PUL
 
-  - __pubplace__\
+  - __pubplace_code__\
     The country code found at character 15 to 18 of the 008
+
+  - __pubplace__\
+    A human-readable translation of the country code
 
   - __pubsubplace__\
     A regex-processed version of the 260\$a (usually publication city).

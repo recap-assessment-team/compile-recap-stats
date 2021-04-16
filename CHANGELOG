@@ -5,6 +5,7 @@
 - utils in dependencies now part of libbib
 - now writes out gzipped data files instead (for big files and intermediate files)
 - writes targets in one place
+- adds human-readable language name and place of publication name
 
 2021-03
 - adds LC Subject Classification and subclassification directly in data target

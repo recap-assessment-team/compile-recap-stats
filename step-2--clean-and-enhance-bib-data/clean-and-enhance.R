@@ -14,7 +14,7 @@ library(colorout)
 library(data.table)
 library(magrittr)
 library(stringr)
-library(libbib)   # version 1.3.3
+library(libbib)   # version 1.3.4
 
 # ------------------------------ #
 
@@ -71,6 +71,8 @@ rm(pul)
 gc()
 
 
+recap[, language:=get_language_from_code(lang_code)]
+recap[, pubplace:=get_country_from_code(pubplace_code)]
 
 
 
@@ -89,7 +91,7 @@ recap[!is.na(original_isbn),
                                     filterfun=remove_duplicates_and_nas,
                                     reduxfun=recombine_with_sep_closure(),
                                     cl=9)]
-# 6.5 minutes / 17 minutes
+# 6.5 minutes or 17 minutes
 
 
 
@@ -103,7 +105,7 @@ recap[!is.na(original_issn),
                                     filterfun=remove_duplicates_and_nas,
                                     reduxfun=recombine_with_sep_closure(),
                                     cl=7)]
-# 18 minutes / 2.5 minutes
+# 2.5 minutes or 18 minutes
 
 
 
@@ -118,12 +120,14 @@ recap[inst_has_item!="NYPL" & !is.na(localcallnum) & is.na(lccall)
 
 recap[!is.na(lccall),
       subject_classification:=get_lc_call_subject_classification(lccall)]
+# 1.7 minutes
 
 recap[is.na(subject_classification), lccall:=NA]
 
 recap[!is.na(lccall),
       subject_subclassification:=get_lc_call_subject_classification(lccall,
                                                                     subclassification=TRUE)]
+# 1.7 minutes
 
 
 
@@ -131,12 +135,13 @@ recap[!is.na(lccall),
 
 
 neworder <- c("inst_has_item", "barcode", "vol", "numitems", "scsbid",
-              "sharedp", "language", "pubdate", "biblevel", "recordtype",
-              "oclc", "lccn", "original_isbn", "isbn", "original_issn",
-              "issn", "original_lccall", "lccall", "localcallnum", "oh09",
-              "pubplace", "pubsubplace", "leader", "oh08",
-              "dateoflastxaction", "title", "author", "topicalterms",
-              "subject_classification", "subject_subclassification")
+              "sharedp", "lang_code", "language", "pubdate", "biblevel",
+              "recordtype", "oclc", "lccn", "original_isbn", "isbn",
+              "original_issn", "issn", "original_lccall", "lccall",
+              "localcallnum", "oh09", "pubplace_code", "pubplace",
+              "pubsubplace", "leader", "oh08", "dateoflastxaction",
+              "title", "author", "topicalterms", "subject_classification",
+              "subject_subclassification")
 
 
 setcolorder(recap, neworder)

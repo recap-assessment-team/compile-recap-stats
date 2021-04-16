@@ -15,19 +15,14 @@ library(data.table)
 library(magrittr)
 library(stringr)
 
-
-
 # ------------------------------ #
 
 
 # 2.7 minutes
 recap <- fread("../target/RECAP.dat.gz")
 
-
-las <- fread("../step-3--fix-borrow-data/target/transactions.dat")
+las <- fread("../target/transactions.dat")
 las[, barcode:=toupper(barcode)]
-
-# las <- las[item_owner %chin% c("CUL", "NYPL", "PUL")]
 
 setkey(las, "barcode")
 
@@ -61,8 +56,6 @@ comb[is.na(inst_has_item)]
 comb[!is.na(inst_has_item)]
 comb[is.na(inst_has_item), .N]
 
-
-OLDORDER <- names(comb)
 
 setcolorder(comb, c("barcode", "item_owner", "order_owner", "req_date",
                     "ship_date", "inst_has_item"))
