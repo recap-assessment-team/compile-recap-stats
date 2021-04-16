@@ -25,9 +25,9 @@ to make this whole thing reproducible
 
 So this is a multistep procedure that yields three spreadsheets
 (tab-delimited, "NA" is null, etc...) meant for direct consumption:
-  - `RECAP.dat`\
+  - `RECAP.dat.gz`\
     The projection of all the Marc XML data. As of time of writing,
-    this includes 13.2 million items.
+    this includes 13.2 million items. (gzipped)
   - `transactions.dat`\
     Takes all the transaction data exported from LAS and, because there
     are overlaps in the time, removes the duplicates.
@@ -47,9 +47,14 @@ So this is a multistep procedure that yields three spreadsheets
     Marc XML data exports from SCSB, at time of writing
 
 For space and privacy the input and output files are "git-ignored" and
-not in this repository. The (output) files are available on our
+not in this repository.
+
+The (output) files are available on our
 "ReCAP Assessment" shared drive under the directory "compiled-recap-stats"
 Let the maintainer know if you need access or help with the files
+
+The file names will have a date (corresponding to the date of the
+MarcXML export/import, and may have a revision number.
 
 ---
 

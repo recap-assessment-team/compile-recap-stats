@@ -15,12 +15,13 @@ library(data.table)
 library(magrittr)
 library(stringr)
 
-source("../dependencies/utils.R")
+
 
 # ------------------------------ #
 
 
-recap <- fread("../step-2--clean-and-enhance-bib-data/target/RECAP.dat")
+# 2.7 minutes
+recap <- fread("../target/RECAP.dat.gz")
 
 
 las <- fread("../step-3--fix-borrow-data/target/transactions.dat")
@@ -68,7 +69,7 @@ setcolorder(comb, c("barcode", "item_owner", "order_owner", "req_date",
 
 comb
 
-comb %>% fwrite("./target/las-transaction-bib-info.dat", sep="\t", na="NA")
+comb %>% fwrite("../target/las-transaction-bib-info.dat", sep="\t", na="NA")
 
 
 

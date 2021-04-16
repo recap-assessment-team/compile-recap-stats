@@ -15,7 +15,7 @@ library(data.table)
 library(magrittr)
 library(stringr)
 
-source("../dependencies/utils.R")
+library(libbib)     # v1.3.3
 
 # ------------------------------ #
 
@@ -70,12 +70,13 @@ xactions[, made_order:=get_place(stopp)]
 xactions[, item_owner:=get_place(item_owner)]
 
 
-setcolorder(xactions, c("item_owner", "made_order", "item_barcode", "req_date", "ship_date", "order_type"))
+setcolorder(xactions, c("item_owner", "made_order", "item_barcode",
+                        "req_date", "ship_date", "order_type"))
 xactions
 
 
-keepcols(xactions, c("item_owner", "made_order", "item_barcode", "req_date",
-                     "ship_date"))
+dt_keep_cols(xactions, c("item_owner", "made_order", "item_barcode",
+                         "req_date", "ship_date"))
 
 setnames(xactions, "made_order", "order_owner")
 setnames(xactions, "item_barcode", "barcode")
@@ -88,6 +89,6 @@ uniqueN(xactions)
 xactions <- unique(xactions)
 xactions[,.N]
 
-xactions %>% fwrite("./target/transactions.dat", sep="\t", na="NA")
+xactions %>% fwrite("../target/transactions.dat", sep="\t", na="NA")
 
 

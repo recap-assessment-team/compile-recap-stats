@@ -14,10 +14,8 @@ library(colorout)
 library(data.table)
 library(magrittr)
 library(stringr)
-library(tidyr)
-library(libbib)   # version 1.0 (on CRAN)
+library(libbib)   # version 1.3.3
 
-source("../dependencies/utils.R")
 # ------------------------------ #
 
 
@@ -51,77 +49,6 @@ pul <- pul[sharedp %chin% c("Shared", "Open"), ]
 # 2021-03:              3,532,434
 
 
-OLDORDER <- names(nypl)
-
-
-
-##################
-##     LCCN     ##
-##################
-nypl[!is.na(lccn), lccn:=normalize_lccn(lccn)]
-cul[!is.na(lccn), lccn:=normalize_lccn(lccn)]
-pul[!is.na(lccn), lccn:=normalize_lccn(lccn)]
-
-
-
-
-
-##################
-##     ISBN     ##
-##################
-nypl[, tmp:=sprintf("nypl-%s-%s", barcode, scsbid)]
-nypl[duplicated(tmp), .N]
-# nypl <- nypl[!duplicated(tmp)]
-
-cul[, tmp:=sprintf("cul-%s-%s", barcode, scsbid)]
-cul[duplicated(tmp), .N]
-# cul <- cul[!duplicated(tmp)]
-
-pul[, tmp:=sprintf("pul-%s-%s", barcode, scsbid)]
-pul[duplicated(tmp), .N]
-# pul <- pul[!duplicated(tmp)]
-
-nypl[!is.na(isbn), .(tmp, isbn)] -> one
-cul[!is.na(isbn), .(tmp, isbn)] ->  two
-pul[!is.na(isbn), .(tmp, isbn)] ->  three
-
-comb <- rbindlist(list(one, two, three))
-
-library(tidyr)
-comb %>% separate_rows(isbn, sep=";") -> comb
-comb <- as.data.table(comb)
-
-options(warn=1)
-comb[, fixedisbn:=normalize_isbn(isbn, convert.to.isbn.13=TRUE)]
-
-comb
-
-uniqueN(comb[, .(isbn)])
-uniqueN(comb[, .(fixedisbn)])
-
-comb[, .(isbn=paste(unique(fixedisbn), collapse=";")), tmp] -> betterisbns
-
-
-
-
-##################
-##     ISSN     ##
-##################
-nypl[!is.na(issn), .(tmp, issn)] -> one
-cul[!is.na(issn), .(tmp, issn)] ->  two
-pul[!is.na(issn), .(tmp, issn)] ->  three
-
-comb <- rbindlist(list(one, two, three))
-
-comb %>% separate_rows(issn, sep=";") %>% as.data.table -> comb
-
-comb[, fixedissn:=normalize_issn(issn)]
-
-
-comb[, .(issn=paste(unique(fixedissn), collapse=";")), tmp] -> betterissns
-
-
-# --------------------------------------------------------------- #
 
 
 nypl[, inst_has_item:="NYPL"]
@@ -134,71 +61,88 @@ setcolorder(pul, c("inst_has_item"))
 
 recap <-rbindlist(list(nypl, cul, pul))
 
+recap[,.N]
 # old:~     12.8 million
 # 2021-03:  13.2 million
 
-
-# LC CALLS
-
-recap %>% names
-recap[, lccallp:=lccall]
-recap[inst_has_item!="NYPL" &
-      !is.na(localcallnum) &
-      is.na(lccall) &
-      str_detect(localcallnum,
-                 "^[A-Z][A-Z]?\\d+")
-    , lccallp:=localcallnum]
+rm(nypl)
+rm(cul)
+rm(pul)
+gc()
 
 
 
 
-recap[1:3,]
+
+##########
+####  LCCN
+recap[!is.na(lccn), lccn:=normalize_lccn(lccn)]         # 1.2 minutes
 
 
 
-## join fixed controls
-setnames(recap, "isbn", "original_isbn")
-setnames(recap, "issn", "original_issn")
-
-recap
-
-setkey(recap, "tmp")
-setkey(betterisbns, "tmp")
-setkey(betterissns, "tmp")
-
-recap[, .N]
-betterisbns[recap] -> betterrecap
-
-betterissns[betterrecap] -> betterrecap
+##########
+####  ISBN
+recap[, original_isbn:=isbn]
+recap[!is.na(original_isbn),
+      isbn:=split_map_filter_reduce(original_isbn,
+                                    mapfun=function(x){normalize_isbn(x, convert.to.isbn.13=TRUE)},
+                                    filterfun=remove_duplicates_and_nas,
+                                    reduxfun=recombine_with_sep_closure(),
+                                    cl=9)]
+# 6.5 minutes / 17 minutes
 
 
-betterrecap[1:3]
-
-OLDORDER <- c("inst_has_item", OLDORDER)
 
 
-betterrecap[, original_lccall:=lccall]
-betterrecap[, lccall:=lccallp]
+##########
+####  ISSN
+recap[, original_issn:=issn]
+recap[!is.na(original_issn),
+      issn:=split_map_filter_reduce(original_issn,
+                                    mapfun=function(x){normalize_issn(x)},
+                                    filterfun=remove_duplicates_and_nas,
+                                    reduxfun=recombine_with_sep_closure(),
+                                    cl=7)]
+# 18 minutes / 2.5 minutes
 
-betterrecap[, lccallp:=NULL]
 
-betterrecap %>% names
 
-betterrecap[, tmp:=NULL]
+
+##############
+####  LC CALLS
+recap[, original_lccall:=lccall]
+recap[inst_has_item!="NYPL" & !is.na(localcallnum) & is.na(lccall)
+      & (!str_detect(localcallnum, ":") | str_detect(localcallnum, "\\s+\\.[A-Z]\\d")) # 12th
+      & !str_detect(localcallnum, "^(F|M)\\s+\\d+$")
+      & is_valid_lc_call(localcallnum), lccall:=localcallnum]
+
+recap[!is.na(lccall),
+      subject_classification:=get_lc_call_subject_classification(lccall)]
+
+recap[is.na(subject_classification), lccall:=NA]
+
+recap[!is.na(lccall),
+      subject_subclassification:=get_lc_call_subject_classification(lccall,
+                                                                    subclassification=TRUE)]
+
+
+
+
+
 
 neworder <- c("inst_has_item", "barcode", "vol", "numitems", "scsbid",
               "sharedp", "language", "pubdate", "biblevel", "recordtype",
-              "oclc", "lccn", "isbn", "original_isbn", "issn",
-              "original_issn", "lccall", "original_lccall", "localcallnum",
-              "oh09", "pubplace", "pubsubplace", "leader", "oh08",
-              "dateoflastxaction", "title", "author", "topicalterms")
-
-setcolorder(betterrecap, neworder)
-
-betterrecap %>% fwrite("./target/RECAP.dat",
-                       sep="\t", na="NA")
+              "oclc", "lccn", "original_isbn", "isbn", "original_issn",
+              "issn", "original_lccall", "lccall", "localcallnum", "oh09",
+              "pubplace", "pubsubplace", "leader", "oh08",
+              "dateoflastxaction", "title", "author", "topicalterms",
+              "subject_classification", "subject_subclassification")
 
 
+setcolorder(recap, neworder)
 
-
+recap %>% fwrite("../target/RECAP.dat.gz",
+                 sep="\t", na="NA")
+# 19 seconds
+# 1 GB (down from 5GB uncompressed
 
