@@ -1,4 +1,5 @@
 .DS_Store
+step-1--parse-marc-xml/target/*
 step-2--clean-and-enhance-bib-data/target/*
 step-3--fix-borrow-data/target/*
 step-4--join-xactions-with-bib-data/target/*

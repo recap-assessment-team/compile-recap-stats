@@ -5,23 +5,26 @@
 rm(list=ls())
 
 options(echo=TRUE)
+options(width=80)
+options(warn=2)
+options(scipen=10)
 options(datatable.prettyprint.char=50)
-options(width = 80)
+options(datatable.print.class=TRUE)
+options(datatable.print.keys=TRUE)
+options(datatable.fwrite.sep='\t')
+options(datatable.na.strings="")
 
 args <- commandArgs(trailingOnly=TRUE)
 
 library(colorout)
 library(data.table)
 library(magrittr)
-library(stringr)
-
-library(libbib)     # v1.3.4
+library(libbib)   # >= v1.6.2
 
 # ------------------------------ #
 
 
-library(lubridate)
-
+LAS_XACTION_DATA_LOC <- "~/data/las-transactions/"
 
 
 ##
@@ -37,33 +40,19 @@ get_place <- function(x){
 ##
 
 
+list.files(LAS_XACTION_DATA_LOC) %>%
+  sapply(function(x) sprintf("%s/%s", LAS_XACTION_DATA_LOC, x)) %>%
+  lapply(function(x){ fread(x, colClasses="character", header=TRUE,
+                            col.names=c("order_owner", "item_barcode",
+                                        "item_owner", "req_date",
+                                        "ship_date", "requestor", "stopp",
+                                        "status", "order_type")) }) %>%
+  rbindlist -> xactions
 
-xlas1 <- fread("~/data/las-transactions/LAS-2017-06-20--2018-12-28.csv",
-               colClasses="character", header=TRUE,
-               col.names=c("order_owner", "item_barcode", "item_owner",
-                           "req_date", "ship_date", "requestor",
-                           "stopp", "status", "order_type"))
+xactions[, ship_date:=as.Date(ship_date, format="%m/%d/%y")]
+xactions[, req_date:=as.Date(req_date, format="%m/%d/%y")]
 
-xlas2 <- fread("~/data/las-transactions/LAS-2018-06-25--2019-06-28.csv",
-               colClasses="character", header=TRUE,
-               col.names=c("order_owner", "item_barcode", "item_owner",
-                           "req_date", "ship_date", "requestor",
-                           "stopp", "status", "order_type"))
-
-xlas3 <- fread("~/data/las-transactions/LAS-2019-06-25--2021-04-09.csv",
-               colClasses="character", header=TRUE,
-               col.names=c("order_owner", "item_barcode", "item_owner",
-                           "req_date", "ship_date", "requestor",
-                           "stopp", "status", "order_type"))
-
-
-xactions <- rbindlist(list(xlas1, xlas2, xlas3))
-
-xactions
-
-xactions[, ship_date:=mdy(ship_date)]
-xactions[, req_date:=mdy(req_date)]
-
+setorder(xactions, req_date)
 
 # now join with xwalk
 xactions[, made_order:=get_place(stopp)]
@@ -73,7 +62,6 @@ xactions[, item_owner:=get_place(item_owner)]
 setcolorder(xactions, c("item_owner", "made_order", "item_barcode",
                         "req_date", "ship_date", "order_type"))
 xactions
-
 
 dt_keep_cols(xactions, c("item_owner", "made_order", "item_barcode",
                          "req_date", "ship_date"))
@@ -89,6 +77,7 @@ uniqueN(xactions)
 xactions <- unique(xactions)
 xactions[,.N]
 
-xactions %>% fwrite("../target/transactions.dat", sep="\t", na="NA")
+
+xactions %>% fwrite("../target/transactions.dat")
 
 

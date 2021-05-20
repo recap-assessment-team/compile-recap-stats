@@ -3,11 +3,14 @@
 set -x
 set -e
 
-DATADIR="/home/tony/data/scsb-recap-exports/2021-03/"
+DATADIR=$(find /home/tony/data/scsb-recap-exports/ -maxdepth 1 | sort | tail -n 1)
+EXPDATE=$(echo $DATADIR | perl -pe 's/^.+(\d{4}-\d{2}-\d{2})/$1/')
+echo $DATADIR
+echo $EXPDATE
 
-time ./parse-all-marcxmls.lisp $DATADIR/unparsed/NYPL > $DATADIR/parsed/NYPL-RECAP.dat
-time ./parse-all-marcxmls.lisp $DATADIR/unparsed/CUL > $DATADIR/parsed/CUL-RECAP.dat
-time ./parse-all-marcxmls.lisp $DATADIR/unparsed/PUL > $DATADIR/parsed/PUL-RECAP.dat
+time ./parse-all-marcxmls.lisp $DATADIR/NYPL > ./target/NYPL-RECAP-$EXPDATE.dat
+time ./parse-all-marcxmls.lisp $DATADIR/CUL  > ./target/CUL-RECAP-$EXPDATE.dat
+time ./parse-all-marcxmls.lisp $DATADIR/PUL  > ./target/PUL-RECAP-$EXPDATE.dat
 
 
 ### 2021-03 timings

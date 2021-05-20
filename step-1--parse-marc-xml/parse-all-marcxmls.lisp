@@ -144,9 +144,9 @@
 
 
 (ft "~A~%" (delim (list "barcode" "vol" "numitems" "scsbid" "sharedp"
-                        "language" "pubdate" "biblevel" "recordtype"
+                        "lang_code" "pubdate" "biblevel" "recordtype"
                         "oclc" "lccn" "isbn" "issn" "lccall" "localcallnum"
-                        "oh09" "pubplace" "pubsubplace" "leader" "oh08"
+                        "oh09" "pubplace_code" "pubsubplace" "leader" "oh08"
                         "dateoflastxaction" "title" "author"
                         "topicalterms")))
 
