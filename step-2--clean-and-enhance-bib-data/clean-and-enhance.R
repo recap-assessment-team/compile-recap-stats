@@ -26,36 +26,43 @@ library(assertr)
 # ------------------------------ #
 
 
-nypl <- fread_plus_date("../step-1--parse-marc-xml/target/NYPL-RECAP.dat",
+nypl <- fread_plus_date("../step-1--parse-marc-xml/target/NYPL-RECAP.dat.gz",
               colClasses="character", quote="", na.strings=c("", "NA", "NIL"),
               strip.white=FALSE)
-nypl %>% verify(nrow(.) >= 6263710, success_fun=success_report) # 2021-03-26
+nypl %>% assert(in_set("Shared", "Open"), sharedp)
+# nypl <- nypl[sharedp %chin% c("Shared", "Open"), ]
+# nypl %>% verify(nrow(.) >= 4848922, success_fun=success_report) # old
+# nypl %>% verify(nrow(.) >= 4938534, success_fun=success_report) # 2021-03-26
+nypl %>% verify(nrow(.) >= 5151895, success_fun=success_report) # 2022-10-25
 
-nypl <- nypl[sharedp %chin% c("Shared", "Open"), ]
-# nypl %>% verify(nrow(.) >= 4848922, success_fun=success_report) # 2021-05-26
-nypl %>% verify(nrow(.) >= 4938534, success_fun=success_report) # 2021-03-26
 
 
-
-cul <- fread_plus_date("../step-1--parse-marc-xml/target/CUL-RECAP.dat",
+cul <- fread_plus_date("../step-1--parse-marc-xml/target/CUL-RECAP.dat.gz",
              colClasses="character", quote="", na.strings=c("", "NA", "NIL"),
              strip.white=FALSE)
-cul %>% verify(nrow(.) >= 5322058, success_fun=success_report) # 2021-03-26
-
-cul <- cul[sharedp %chin% c("Shared", "Open"), ]
+cul %>% assert(in_set("Shared", "Open"), sharedp)
 # cul %>% verify(nrow(.) >= 4681369, success_fun=success_report) # 2021-05-26
 cul %>% verify(nrow(.) >= 4722143, success_fun=success_report) # 2021-03-26
 
 
 
-pul <- fread_plus_date("../step-1--parse-marc-xml/target/PUL-RECAP.dat",
+pul <- fread_plus_date("../step-1--parse-marc-xml/target/PUL-RECAP.dat.gz",
              colClasses="character", quote="", na.strings=c("", "NA", "NIL"),
              strip.white=FALSE)
-pul %>% verify(nrow(.) >= 3971988, success_fun=success_report) # 2021-03-26
-
-pul <- pul[sharedp %chin% c("Shared", "Open"), ]
+pul %>% assert(in_set("Shared", "Open"), sharedp)
 # pul %>% verify(nrow(.) >= 3191778, success_fun=success_report) # 2020-05-26 (?)
-pul %>% verify(nrow(.) >= 3532434, success_fun=success_report) # 2021-03-26
+# pul %>% verify(nrow(.) >= 3532434, success_fun=success_report) # 2021-03-26
+pul %>% verify(nrow(.) >= 3798455, success_fun=success_report) # 2022-10-25
+
+
+hul <- fread_plus_date("../step-1--parse-marc-xml/target/HL-RECAP.dat.gz",
+             colClasses="character", quote="", na.strings=c("", "NA", "NIL"),
+             strip.white=FALSE)
+hul[,.N]
+hul %>% verify(nrow(.) >= 3798455, success_fun=success_report) # 2022-10-25
+hul %>% assert(in_set("Shared", "Open"), sharedp)
+hul <- hul[sharedp %chin% c("Shared", "Open"), ]
+
 
 
 expdate <- attr(nypl, "lb.date")
@@ -64,16 +71,19 @@ expdate <- attr(nypl, "lb.date")
 nypl[, inst_has_item:="NYPL"]
 cul[, inst_has_item:="CUL"]
 pul[, inst_has_item:="PUL"]
+hul[, inst_has_item:="HUL"]
 
 setcolorder(nypl, c("inst_has_item"))
 setcolorder(cul, c("inst_has_item"))
 setcolorder(pul, c("inst_has_item"))
+setcolorder(hul, c("inst_has_item"))
 
-recap <-rbindlist(list(nypl, cul, pul))
+recap <- rbindlist(list(nypl, cul, pul, hul))
 
 recap[,.N]
 # old:~         12.8 million
 # 2021-03-26:   13.2 million
+# 2022-10-25:   17.1 million
 
 rm(nypl)
 rm(cul)
@@ -99,12 +109,14 @@ recap[!is.na(lccn), lccn:=normalize_lccn(lccn)]         # 1.2 minutes
 ####  ISBN
 ###############
 recap[, original_isbn:=isbn]
+system.time({
 recap[!is.na(original_isbn),
       isbn:=split_map_filter_reduce(original_isbn,
                                     mapfun=function(x){normalize_isbn(x, convert.to.isbn.13=TRUE)},
                                     filterfun=remove_duplicates_and_nas,
                                     reduxfun=recombine_with_sep_closure(),
                                     cl=7)]
+})
 # 6.5 minutes or 17 minutes
 
 
