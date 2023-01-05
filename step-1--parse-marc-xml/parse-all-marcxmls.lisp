@@ -6,6 +6,9 @@
 
 (load "xwalks.lisp")
 
+(defmacro info (&rest therest)
+  `(format *error-output* (yellow ,@therest)))
+
 
 (defmacro with-get-all (someval listofunctions &body body)
   (let ((dalist (mapcar (lambda (x) `(,x (,x ,someval))) listofunctions)))

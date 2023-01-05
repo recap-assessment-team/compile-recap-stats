@@ -1,7 +1,6 @@
 #!/usr/local/bin/zsh
 
-set -x
-set -e
+set -euxo pipefail
 
 DATADIR=$(find /home/tony/data/scsb-recap-exports/ -maxdepth 1 | sort | tail -n 1)
 EXPDATE=$(echo $DATADIR | perl -pe 's/^.+(\d{4}-\d{2}-\d{2})/$1/')
@@ -11,6 +10,7 @@ echo $EXPDATE
 time ./parse-all-marcxmls.lisp $DATADIR/NYPL > ./target/NYPL-RECAP-$EXPDATE.dat
 time ./parse-all-marcxmls.lisp $DATADIR/CUL  > ./target/CUL-RECAP-$EXPDATE.dat
 time ./parse-all-marcxmls.lisp $DATADIR/PUL  > ./target/PUL-RECAP-$EXPDATE.dat
+time ./parse-all-marcxmls.lisp $DATADIR/HL   > ./target/HL-RECAP-$EXPDATE.dat
 
 
 ### 2021-03 timings
